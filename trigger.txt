@@ -1,0 +1,63 @@
+use triger;
+
+CREATE TABLE IF NOT EXISTS deudor (
+  cedula       INT,
+  nombre    CHAR(50)  NOT NULL,
+  direccion CHAR(100) NOT NULL,
+  telefono  CHAR(10)  NOT NULL,
+  CONSTRAINT PKDeudor PRIMARY KEY (cedula)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT = 1;
+
+CREATE TABLE IF NOT EXISTS  prestamo (
+  nPrestamo     INTEGER(5) AUTO_INCREMENT,
+  cedula           INT,
+  fechaPrestamo DATE NOT NULL,
+  monto         INTEGER(8)   NOT NULL CHECK(monto > 0 AND monto <= 100000),
+  saldo         DECIMAL(10,2) NOT NULL,
+  interes       DECIMAL(5,2) NOT NULL,
+  CONSTRAINT PKPrestamo PRIMARY KEY (nPrestamo),
+  CONSTRAINT FKDeudorPrestamo FOREIGN KEY (cedula) REFERENCES deudor(cedula)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT = 1;
+
+DROP TABLE IF EXISTS pagos;
+
+CREATE TABLE IF NOT EXISTS pagos (
+  nPago     INTEGER AUTO_INCREMENT,
+  nPrestamo INTEGER(5) NOT NULL,
+  F_Venc    DATE NOT NULL,
+  saldo     DECIMAL(10,2) NOT NULL,
+  intereses DECIMAL(5,2) NOT NULL,
+  abono     DECIMAL(8,2) CHECK (abono >= 0),
+  F_Pago    DATE,
+  CONSTRAINT PKCuota PRIMARY KEY (nPago),
+  CONSTRAINT FKCuota_Prestamo FOREIGN KEY (nPrestamo) REFERENCES prestamo(nPrestamo)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT = 1;
+
+show tables;
+describe deudor;
+select * From deudor;
+describe pagos;
+select * From pagos;
+describe prestamo;
+select * From prestamo;
+describe producto_registrado;
+describe registro_producto;
+describe respaldo;
+
+
+
+insert into deudor values (11111111,'Andres medina','Calle Siempre Viva',9974561);
+select * from pagos; 
+
+
+create trigger pagos_ai
+After insert on Prestamo for each row 
+Begin
+insert into pagos (nPrestamo, F_venc, saldo, intereses, abono)
+VALUES(new.nPrestamo, DATE_ADD(CURDATE(),
+INTERVAL 30 DAY), new.saldo, new.saldo*
+new.interes,0);
+ 
+
+
+
